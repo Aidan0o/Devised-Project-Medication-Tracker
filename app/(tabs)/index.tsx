@@ -1,16 +1,49 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 
+import BluetoothConnectButton from '@/components/connect-button';
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useEffect, useState } from 'react';
+
+import AddMedButton from '@/components/NavButtons/addMedButton';
+import ViewMedButton from '@/components/NavButtons/viewMedButton';
+
+function bluetoothConnect() {
+  console.log("HELL")
+} 
 
 export default function HomeScreen() {
+  const [connected, setConnected] = useState(false)
+  const [fieldValue, setFieldValue] = useState("red")
+  const [fieldValue2, setFieldValue2] = useState("")
+  const [color, setColor] = useState("blue")
+  useEffect(() => {
+    console.log("IM LOADED")
+  }, [])
+
+  useEffect(() => {
+    if (fieldValue!="blue") {
+      setColor(fieldValue)
+    } else {
+      setColor("blue")
+    }
+  }, [fieldValue])
+
+  const clickHandler = (ev) => {
+    const values = {
+      value1: fieldValue, 
+      value2: fieldValue2
+    }
+    setConnected(!connected) //sets the bool value of connected to the opposite of what it currently is
+    console.log("Submiting", values)
+  }
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: color, dark: color }}
       headerImage={
         <Image
           source={require('@/assets/images/partial-react-logo.png')}
@@ -18,62 +51,43 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <ThemedText type="title">{fieldValue}</ThemedText>
+        <BluetoothConnectButton
+           onConnect={setConnected}
+          />
+        
+        <TextInput 
+           value={fieldValue}
+            style={styles.input}
+            onChangeText={(value) => {
+              console.log(value)
+             setFieldValue(value)
+          }}
+        /> 
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
+         <TextInput 
+           value={fieldValue2}
+            style={styles.input}
+            onChangeText={(value) => {
+              console.log(value)
+             setFieldValue2(value)
+          }}
+        />
       </ThemedView>
+      
       <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+        <BluetoothConnectButton onConnect={{setConnected}}/> 
+      </ThemedView>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
+      <ThemedView>
+        <ViewMedButton/>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+      <ThemedView>
+        <AddMedButton/>
       </ThemedView>
+
     </ParallaxScrollView>
   );
 }
@@ -95,4 +109,10 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+  }
 });

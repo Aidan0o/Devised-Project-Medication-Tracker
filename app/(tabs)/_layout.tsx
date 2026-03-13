@@ -10,37 +10,40 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { medBoxBle } from '@/components/bluetoothUtils/BLE-connect';
 
 
-import { Lexend_400Regular, Lexend_700Bold, useFonts } from '@expo-google-fonts/lexend';
+// import { createDB } from '@/components/databaseUtils/database';
 
-
+//tabs
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [manager, setManager] = useState(medBoxBle);
-  const [fontsLoaded] = useFonts({
-    Lexend_400Regular, // regular weight
-    Lexend_700Bold,    // bold weight
-  });
+  // const [fontsLoaded] = useFonts({
+  //   Lexend_400Regular, // regular weight
+  //   Lexend_700Bold,    // bold weight
+  // });
 
-
+//Bluetooth Connection 
   useEffect(() => {
     if(manager){
       manager.connect().then(() =>{
         console.log("im connected to the ESP32");
-        manager.send("HELLO ESP MADAFAKA")
-          .then((r) => {console.log("sent!", r)
+        manager.send("test")
+          .then((r) => {console.log("sent!", r)})
           .catch((err) => console.log("error: ", err))
-        })
       });
     }
   },
   [manager]
   )  
 
+  //sqlite db
+  // useEffect(() => {
+  //   createDB();
+  // }, []);
+  
+            
   
 
-  
-
-  if (!fontsLoaded) return null;
+  // if (!fontsLoaded) return null;
 
   return (
     <Tabs

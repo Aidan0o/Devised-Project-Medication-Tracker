@@ -8,8 +8,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useEffect, useState } from 'react';
 
-import AddMedButton from '@/components/NavButtons/addMedButton';
-import ViewMedButton from '@/components/NavButtons/viewMedButton';
+import AddMedButton from '@/components/ui/NavButtons/addMedButton';
+import ViewMedButton from '@/components/ui/NavButtons/viewMedButton';
 
 function bluetoothConnect() {
   console.log("HELL")

@@ -3,8 +3,8 @@ import { Image, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-import AddMedButton from '@/components/NavButtons/addMedButton';
-import ViewMedButton from '@/components/NavButtons/viewMedButton';
+import AddMedButton from '@/components/ui/NavButtons/addMedButton';
+import ViewMedButton from '@/components/ui/NavButtons/viewMedButton';
 
 function bluetoothConnect() {
   console.log("HELL")

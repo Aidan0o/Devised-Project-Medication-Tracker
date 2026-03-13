@@ -45,7 +45,19 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker",
+
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true,
+          "useSQLCipher": true,
+        }
+      ]
+      
+      
+      
     ],
     "experiments": {
       "typedRoutes": true,

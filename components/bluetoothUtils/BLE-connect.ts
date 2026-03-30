@@ -110,7 +110,7 @@ for (const s of services) {
     });
   }
 }
-    // writeWithResponse is safest; switch to writeWithoutResponse if your peripheral expects it
+   
     await this.device.writeCharacteristicWithoutResponseForService(
       SERVICE_UUID,
       WRITE_CHAR_UUID,

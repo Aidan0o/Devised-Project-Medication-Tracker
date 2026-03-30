@@ -1,4 +1,4 @@
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -8,7 +8,7 @@ import ViewMedButton from '@/components/NavButtons/viewMedButton';
 
 function bluetoothConnect() {
   console.log("HELL")
-} 
+}
 
 export default function HomeScreen() {
   const [connected, setConnected] = useState(false)
@@ -20,14 +20,20 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaProvider>
-        <SafeAreaView style={styles.Container}>
-            <Image 
-            source={require('../../assets/images/PillPallLogo.png')} 
-            style={{width: 160, height: 70}}
-            />
-            <AddMedButton/>
-            <ViewMedButton/>
-        </SafeAreaView>
+      <SafeAreaView style={styles.Container}>
+        <Image
+          source={require('../../assets/images/PillPallLogo.png')}
+          style={{ width: 500, height: 500 }}
+        />
+        <View style={styles.tempPlaceholder}>
+
+        </View>
+        <View style={styles.buttons}>
+          <AddMedButton />
+          <ViewMedButton />
+        </View>
+
+      </SafeAreaView>
     </SafeAreaProvider>
 
 
@@ -37,17 +43,21 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   Container: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    alignContent: 'space-between'
+    // gap: 8,
   },
 
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
+  buttons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+
+  tempPlaceholder: {
+    borderWidth: 5,
+
+
   }
 });

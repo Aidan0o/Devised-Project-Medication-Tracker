@@ -1,4 +1,5 @@
 
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Button, Image, StyleSheet, View } from 'react-native';
 
@@ -8,18 +9,127 @@ import * as ImagePicker from 'expo-image-picker'; //imports all
 //OCR lib 
 import { extractTextFromImage } from 'expo-text-extractor';
 //openAI lib
+import { OpenAI } from 'openai';
+
+const scriptAI = new OpenAI({
+  apiKey: 'Your not getting my key ',
+  dangerouslyAllowBrowser: true,
+})
 
 
+
+const prompt =
+  `
+Im sending you the instructions from a prescription form.
+I want you to extract the following data from the instructions 
+Medication name
+Medication dose (number and unit should be seperate)
+The strength of each capsule (number and unit should be seperate)
+Supply number
+frequency of dose (seperated into the number and the time period ((3) times (daily))
+
+
+return this data as JSON only - no markdown, no extra comments, purely just the JSON data in the following structure:
+Never attempt to fill the scriptLength, notiTimes or scripStartDate fields - leave them empty every time
+{
+  "medication": {
+    "name": "string",
+    "strengthPerUnit": "number",
+    "strengthUnit": "string",
+    "doseAmount": "number",
+    "doseUnit": "string",
+    "frequency": {
+      "times": "number",
+      "per": "string"
+    },
+    "totalSupply": "number",
+    "scriptLength" : "number,
+    "notiTimes" :  "[]"
+    "scriptStartDate" : "string"
+  }
+}
+
+Here are the instructions:  SCRIPTTEXT
+`
 
 
 
 export default function ImagePickerComp({ onImageChange }) {
   const [image, setImage] = useState<string | null>(null);
-
+  const router = useRouter();
+  //break into seperate functions
   useEffect(() => {
     if (image) {
       // onImageChange(image);
-      const scriptText = extractTextFromImage(image).then(console.log)
+      extractTextFromImage(image).then((OCRresponse) => {
+        console.log(OCRresponse);
+        const parsedPrompt = prompt.replace('SCRIPTTEXT', OCRresponse.join('\n')) //replaces SCRIPTTEXT with the text from the OCR reader
+        console.log(parsedPrompt)
+
+
+        scriptAI.chat.completions.create({
+          model: 'gpt-4o',
+          temperature: 0,
+          max_tokens: 1000,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: parsedPrompt, //sends prompt to api
+                },
+              ],
+            },
+          ],
+        }).then((aiResponseTemp) => {
+          const aiResponse = aiResponseTemp.choices[0].message.content //selects only the JSON content from the API response
+          console.log(aiResponse)
+          const parsedAiResponse = JSON.parse(aiResponse)
+          console.log(parsedAiResponse.medication.name)
+          const numPerDay = parsedAiResponse.medication.frequency.times
+          let times = [];
+          switch (numPerDay) {
+            case 1:
+              times = ["9:00"];
+              break;
+            case 2:
+              times = ["9:00", "21:00"];
+              break;
+            case 3:
+              times = ["9:00", "15:00", "21:00"];
+              break;
+            case 4:
+              times = ["9:00", "13:00", "17:00", "21:00"];
+              break;
+            case 5:
+              times = ["9:00", "12:00", "15:00", "18:00", "21:00"];
+              break;
+            case 6:
+              times = ["9:00", "11:30", "14:00", "16:00", "18:30", "21:00"];
+              break;
+            case 7:
+              times = ["9:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00"]
+          }
+          console.log(times);
+
+          let pillsPerDose = (parsedAiResponse.medication.doseAmount) / (parsedAiResponse.medication.strengthPerUnit)
+          let pillPerDay = (parsedAiResponse.medication.frequency.times) * (pillsPerDose);
+          console.log(pillPerDay);
+          let scriptLength = (parsedAiResponse.medication.totalSupply) / (pillPerDay);
+          console.log(scriptLength);
+
+          parsedAiResponse.medication.scriptLength = scriptLength;
+          parsedAiResponse.medication.notiTimes = times;
+          console.log(parsedAiResponse.medication);
+        });
+
+
+
+
+      }
+
+      )
 
     }
   }, [image])
@@ -46,6 +156,7 @@ export default function ImagePickerComp({ onImageChange }) {
 
     if (!chosenImage.canceled) {
       setImage(chosenImage.assets[0].uri);
+      router.navigate('/(tabs)/addPrescription')
     }
   };
 
@@ -67,9 +178,9 @@ export default function ImagePickerComp({ onImageChange }) {
 
     if (!takenPhoto.canceled) {
       setImage(takenPhoto.assets[0].uri)
+      router.navigate('/(tabs)/addPrescription')
     }
   };
-
 
   return (
     <View style={styles.container}>

@@ -1,47 +1,125 @@
 import * as SQLite from 'expo-sqlite';
 
-export const db = SQLite.openDatabase('medications.db');
+const db = SQLite.openDatabaseSync('medications.db');
+
+export const dropDB = () => {
+  db.execSync(`
+    DROP TABLE medicine;
+    DROP TABLE schedule;
+    DROP TABLE scheduleItems;
+
+  `)
+}
 
 export const createDB = () => {
-  db.transaction(tx => {
+  db.execSync(`
+    CREATE TABLE IF NOT EXISTS medicine (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      pillStrength INTEGER NOT NULL,
+      pillStrengthUnit TEXT NOT NULL,
+      doseAmount INTEGER NOT NULL,
+      doseUnit TEXT NOT NULL,
+      totalSupply INTEGER NOT NULL,
+      frequencyTimes INTEGER NOT NULL,
+      frequencyPer TEXT NOT NULL
+    );
+    
+    CREATE TABLE IF NOT EXISTS schedule (
+      id INTEGER PRIMARY KEY,
+      scriptLength INTEGER NOT NULL,
+      startDate TEXT NOT NULL,
+      completed INTEGER NOT NULL,
+      medicineID INTEGER NOT NULL,
+      FOREIGN KEY (medicineID) REFERENCES medicine(id)
+    );
 
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS Medicine (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        Name TEXT NOT NULL,
-        DoseQuantity INTEGER,
-        DoseUnit TEXT,
-        DoseNumOfPills INTEGER,
-        TotalDoseQuantity INTEGER,
-        MinTimeBetweenDoses INTEGER,
-        RepeatScript INTEGER
-      );
-    `);
-
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS Schedule (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        MedicineID INTEGER,
-        StartDateTime TEXT,
-        EndDateTime TEXT,
-        Completed INTEGER,
-        FOREIGN KEY (MedicineID) REFERENCES Medicine(ID)
-      );
-    `);
-
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS ScheduleItems (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        ScheduleID INTEGER,
-        DateTime TEXT,
-        Taken INTEGER,
-        FOREIGN KEY (ScheduleID) REFERENCES Schedule(ID)
-      );
-    `);
-
-  }, (error) => {
-    console.log("DB Init Error:", error);
-  }, () => {
-    console.log("Database ready");
-  });
+    CREATE TABLE IF NOT EXISTS scheduleItems (
+      id INTEGER PRIMARY KEY,
+      time TEXT NOT NULL,
+      date TEXT NOT NULL,
+      taken INTEGER NOT NULL,
+      scheduleID INTEGER NOT NULL,
+      FOREIGN KEY (scheduleID) REFERENCES schedule(id)
+    );
+  `)
 };
+
+export const insertMedicine = (params): Number => {
+  console.log(params)
+  const result = db.runSync(`
+    INSERT INTO medicine (
+      doseAmount, 
+      doseUnit, 
+      frequencyPer, 
+      frequencyTimes, 
+      name, 
+      pillStrength, 
+      pillStrengthUnit, 
+      totalSupply)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+   `, [
+    params.doseAmount,
+    params.doseUnit,
+    params.frequencyPer,
+    params.frequencyTimes,
+    params.name,
+    params.pillStrength,
+    params.pillStrengthUnit,
+    params.totalSupply
+  ]);
+  console.log("inserting ", result)
+
+
+  return result.lastInsertRowId; //returns the ID given to the medication so we can make it into a schedule
+};
+
+export const insertSchedule = (scriptLength, startDate, medicineID): Number => {
+  console.log(scriptLength, startDate, medicineID)
+  const result = db.runSync(`
+    INSERT INTO schedule (
+      scriptLength, 
+      startDate, 
+      completed, 
+      medicineID 
+  )VALUES (?, ?, ?, ?);
+   `, [
+    scriptLength,
+    startDate,
+    false,
+    medicineID
+  ]);
+  console.log("inserting ", result)
+  return result.lastInsertRowId;
+}
+
+export const insertScheduleItem = (time, date, scheduleID): Number => {
+  console.log(time)
+  const result = db.runSync(`
+    INSERT INTO scheduleItems (
+      time, 
+      date,
+      taken, 
+      scheduleID 
+  )VALUES (?, ?, ?, ?);
+   `, [
+    time,
+    date,
+    false,
+    scheduleID,
+
+  ]);
+  console.log("inserting ", result)
+  return result.lastInsertRowId; //returns the ID given to the medication so we can make it into a schedule
+};
+
+//functions to console log the content of db
+export const debugDB = () => {
+  const Mrows = db.getAllSync("SELECT * FROM medicine;");
+  console.log("Medicine table:", Mrows);
+  const Srows = db.getAllSync("SELECT * FROM schedule;");
+  console.log("Schedule table:", Srows);
+  const SIrows = db.getAllSync("SELECT * FROM scheduleItems;");
+  console.log("Schedule Item table:", SIrows);
+};
+

@@ -12,7 +12,7 @@ import { extractTextFromImage } from 'expo-text-extractor';
 import { OpenAI } from 'openai';
 
 const scriptAI = new OpenAI({
-  apiKey: 'Your not getting my key ',
+  apiKey: 'No API key for you',
   dangerouslyAllowBrowser: true,
 })
 
@@ -56,6 +56,7 @@ Here are the instructions:  SCRIPTTEXT
 
 export default function ImagePickerComp({ onImageChange }) {
   const [image, setImage] = useState<string | null>(null);
+  const [scriptionData, setScriptData] = useState({})
   const router = useRouter();
   //break into seperate functions
   useEffect(() => {
@@ -121,15 +122,10 @@ export default function ImagePickerComp({ onImageChange }) {
 
           parsedAiResponse.medication.scriptLength = scriptLength;
           parsedAiResponse.medication.notiTimes = times;
+          setScriptData(parsedAiResponse);
           console.log(parsedAiResponse.medication);
         });
-
-
-
-
-      }
-
-      )
+      })
 
     }
   }, [image])
@@ -190,6 +186,16 @@ export default function ImagePickerComp({ onImageChange }) {
     </View>
   );
 }
+
+
+export function prescriptionData() {
+
+  return {
+    parsedAiResponse
+  }
+}
+
+
 
 const styles = StyleSheet.create({
   container: {

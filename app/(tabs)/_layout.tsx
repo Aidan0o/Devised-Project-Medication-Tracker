@@ -20,11 +20,14 @@ const tempObj = {
   name: 'test',
   pillStrength: 3,
   pillStrengthUnit: 'test',
+  pillCountPerDose : '2',
   totalSupply: 6,
   scriptLength: 5,
   startDate: 1,
   times: ["9:00", "15:00", "21:00"]
 }
+
+
 
 let date = tempObj.startDate
 
@@ -43,13 +46,14 @@ export default function TabLayout() {
       dropDB();
       createDB(); //creates database when app starts
       //test
+      
       let medicineID = insertMedicine(tempObj);
       let scheduleID = insertSchedule(tempObj.scriptLength, tempObj.startDate, medicineID);
       date = dateIterator(tempObj.startDate, date);
       for (let i = 0; i < tempObj.scriptLength; i++) {
         tempObj.times.forEach((time) => {
-          insertScheduleItem(time, date, scheduleID);
-
+          const scheduleItemId = insertScheduleItem(time, date, scheduleID);
+          //make notification.then(update scheduleItemId with notiication id)
         });
         date += 1;
       }

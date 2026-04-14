@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker'; //imports all
 import { extractTextFromImage } from 'expo-text-extractor';
 //openAI lib
 import { OpenAI } from 'openai';
+import { timeMap } from './constants';
 
 const scriptAI = new OpenAI({
   apiKey: 'No API key for you',
@@ -30,27 +31,28 @@ frequency of dose (seperated into the number and the time period ((3) times (dai
 
 
 return this data as JSON only - no markdown, no extra comments, purely just the JSON data in the following structure:
-Never attempt to fill the scriptLength, notiTimes or scripStartDate fields - leave them empty every time
+Never attempt to fill the scriptLength, notiTimes, pillsPerDose or scripStartDate fields - leave them empty every time
 {
   "medication": {
-    "name": "string",
-    "strengthPerUnit": "number",
-    "strengthUnit": "string",
     "doseAmount": "number",
     "doseUnit": "string",
-    "frequency": {
-      "times": "number",
-      "per": "string"
-    },
+    "frequencyPer": "string",
+    "frequencyTimes" : "number",
+    "name": "string",
+    "pillStrength": "number",
+    "pillStrengthUnit" : "string",
+    "pillCountPerDose" : "number",
     "totalSupply": "number",
     "scriptLength" : "number,
-    "notiTimes" :  "[]"
-    "scriptStartDate" : "string"
+    "StartDate" : "string",
+    "times" :  "string []"
   }
 }
 
 Here are the instructions:  SCRIPTTEXT
 `
+
+
 
 
 
@@ -88,40 +90,18 @@ export default function ImagePickerComp({ onImageChange }) {
           console.log(aiResponse)
           const parsedAiResponse = JSON.parse(aiResponse)
           console.log(parsedAiResponse.medication.name)
-          const numPerDay = parsedAiResponse.medication.frequency.times
-          let times = [];
-          switch (numPerDay) {
-            case 1:
-              times = ["9:00"];
-              break;
-            case 2:
-              times = ["9:00", "21:00"];
-              break;
-            case 3:
-              times = ["9:00", "15:00", "21:00"];
-              break;
-            case 4:
-              times = ["9:00", "13:00", "17:00", "21:00"];
-              break;
-            case 5:
-              times = ["9:00", "12:00", "15:00", "18:00", "21:00"];
-              break;
-            case 6:
-              times = ["9:00", "11:30", "14:00", "16:00", "18:30", "21:00"];
-              break;
-            case 7:
-              times = ["9:00", "11:00", "13:00", "15:00", "17:00", "19:00", "21:00"]
-          }
-          console.log(times);
-
-          let pillsPerDose = (parsedAiResponse.medication.doseAmount) / (parsedAiResponse.medication.strengthPerUnit)
-          let pillPerDay = (parsedAiResponse.medication.frequency.times) * (pillsPerDose);
+          const numPerDay = parsedAiResponse.medication.frequencyTimes
+          const times = timeMap[numPerDay];
+          console.log(times); 
+          let pillsPerDose = (parsedAiResponse.medication.doseAmount) / (parsedAiResponse.medication.pillStrength)
+          let pillPerDay = (parsedAiResponse.medication.frequencyTimes) * (pillsPerDose);
           console.log(pillPerDay);
           let scriptLength = (parsedAiResponse.medication.totalSupply) / (pillPerDay);
           console.log(scriptLength);
 
           parsedAiResponse.medication.scriptLength = scriptLength;
-          parsedAiResponse.medication.notiTimes = times;
+          parsedAiResponse.medication.times = times;
+          parsedAiResponse.medication.pillCountPerDose = pillsPerDose;
           setScriptData(parsedAiResponse);
           console.log(parsedAiResponse.medication);
         });

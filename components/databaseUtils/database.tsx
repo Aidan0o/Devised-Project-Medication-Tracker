@@ -39,6 +39,7 @@ export const createDB = () => {
       time TEXT NOT NULL,
       date TEXT NOT NULL,
       taken INTEGER NOT NULL,
+      notificationID TEXT NULL, 
       scheduleID INTEGER NOT NULL,
       FOREIGN KEY (scheduleID) REFERENCES schedule(id)
     );
@@ -123,3 +124,17 @@ export const debugDB = () => {
   console.log("Schedule Item table:", SIrows);
 };
 
+export const updateScheduleItem = (scheduleItemID, notificationID) => {
+  const result = db.runSync(`
+    UPDATE scheduleItems SET notificationID = ? WHERE scheduleItemID = ?
+   `, [
+    scheduleItemID,
+    notificationID
+  ]);
+}
+
+
+export const readChosenMedication = (medicationName) => {
+
+}
+ 

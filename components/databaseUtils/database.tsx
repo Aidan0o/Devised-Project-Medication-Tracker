@@ -1,3 +1,4 @@
+import { formatISO } from 'date-fns';
 import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabaseSync('medications.db');
@@ -94,8 +95,9 @@ export const insertSchedule = (scriptLength, startDate, medicineID): Number => {
   return result.lastInsertRowId;
 }
 
-export const insertScheduleItem = (time, date, scheduleID): Number => {
+export const insertScheduleItem = (time: string, date: Date, scheduleID: number): Number => {
   console.log(time)
+
   const result = db.runSync(`
     INSERT INTO scheduleItems (
       time, 
@@ -105,7 +107,7 @@ export const insertScheduleItem = (time, date, scheduleID): Number => {
   )VALUES (?, ?, ?, ?);
    `, [
     time,
-    date,
+    formatISO(date),
     false,
     scheduleID,
 
@@ -126,7 +128,7 @@ export const debugDB = () => {
 
 export const updateScheduleItem = (scheduleItemID, notificationID) => {
   const result = db.runSync(`
-    UPDATE scheduleItems SET notificationID = ? WHERE scheduleItemID = ?
+    UPDATE scheduleItems SET notificationID = ? WHERE id = ?
    `, [
     scheduleItemID,
     notificationID
@@ -137,4 +139,3 @@ export const updateScheduleItem = (scheduleItemID, notificationID) => {
 export const readChosenMedication = (medicationName) => {
 
 }
- 

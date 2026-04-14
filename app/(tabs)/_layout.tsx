@@ -7,20 +7,24 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
+import { Medication } from '@/components/medicationTypes';
+
 import { medBoxBle } from '@/components/bluetoothUtils/BLE-connect';
-import { createDB, debugDB, dropDB, insertMedicine, insertSchedule, insertScheduleItem } from '@/components/databaseUtils/database';
-import { dateIterator } from '@/components/dateIterator';
+import { createDB, debugDB, dropDB, insertMedicine, insertSchedule, insertScheduleItem, updateScheduleItem } from '@/components/databaseUtils/database';
+import { dateTimeBuilder } from '@/components/dateTimeBuilder';
+import { notificationPermissions, scheduleNotification } from '@/components/notificationUtils/notificationScheduler';
+import { add } from 'date-fns';
 // import { createDB } from '@/components/databaseUtils/database';
 //temp obj:
-const tempObj = {
+const tempObj: Medication = {
   doseAmount: 300,
   doseUnit: 'mg',
   frequencyPer: 'day',
   frequencyTimes: 3,
   name: 'test',
   pillStrength: 3,
-  pillStrengthUnit: 'test',
-  pillCountPerDose : '2',
+  pillStrengthUnit: 'mg',
+  pillCountPerDose: 2,
   totalSupply: 6,
   scriptLength: 5,
   startDate: 1,
@@ -29,7 +33,7 @@ const tempObj = {
 
 
 
-let date = tempObj.startDate
+// let date = tempObj.startDate
 
 //tabs
 export default function TabLayout() {
@@ -46,17 +50,28 @@ export default function TabLayout() {
       dropDB();
       createDB(); //creates database when app starts
       //test
-      
+      const startDate = new Date(); //sets start date to today
+      let date = startDate;
       let medicineID = insertMedicine(tempObj);
       let scheduleID = insertSchedule(tempObj.scriptLength, tempObj.startDate, medicineID);
-      date = dateIterator(tempObj.startDate, date);
+      // date = dateIterator(tempObj.startDate, date);
+      notificationPermissions().then(() => console.log('permission granted'),)
       for (let i = 0; i < tempObj.scriptLength; i++) {
         tempObj.times.forEach((time) => {
-          const scheduleItemId = insertScheduleItem(time, date, scheduleID);
+          const notiDateTime = dateTimeBuilder(date, time);
+          const scheduleItemId = insertScheduleItem(time, notiDateTime, scheduleID);
+          console.log(notiDateTime);
+          scheduleNotification(tempObj, notiDateTime).then((notificationId) => {
+            updateScheduleItem(scheduleItemId, notificationId)
+            console.log(notificationId);
+          })
           //make notification.then(update scheduleItemId with notiication id)
         });
-        date += 1;
+        date = add(date, { days: 1 });
+
       }
+      scheduleNotification(tempObj, new Date(2026, 4, 14, 13, 55, 0)).then(console.log)
+
       debugDB();
       manager.connect().then(() => {
         console.log("im connected to the ESP32");

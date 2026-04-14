@@ -1,11 +1,24 @@
+import { Medication } from '@/components/medicationTypes';
 import * as Notifications from 'expo-notifications';
-import { Medication }from '@/components/medicationTypes'
+
+export async function notificationPermissions() {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+        throw new Error('Notification permission not granted');
+    }
+}
 
 
+export function scheduleNotification(medication: Medication, dateTime: Date) {
 
-export function scheduleNotification(medication : Medication, time : string){
-    const = scheduleItemDateStr = medication.startDate + "T" + time;
-    Notifications.scheduleNotificationAsync({
+    return Notifications.scheduleNotificationAsync({
         content: {
             title: 'Medication Time!',
             body: `Take ${medication.pillCountPerDose} ${medication.doseAmount, medication.doseUnit} pills of ${medication.name}`,
@@ -15,11 +28,11 @@ export function scheduleNotification(medication : Medication, time : string){
             }
         },
         trigger: {
-            type : Notifications.SchedulableTriggerInputTypes.DATE,
-            // date : medication.date
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: dateTime
         }
     });
-    
-     
-   
+
+
+
 }

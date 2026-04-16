@@ -47,7 +47,7 @@ export const createDB = () => {
   `)
 };
 
-export const insertMedicine = (params): Number => {
+export const insertMedicine = (params): number => {
   console.log(params)
   const result = db.runSync(`
     INSERT INTO medicine (
@@ -76,7 +76,7 @@ export const insertMedicine = (params): Number => {
   return result.lastInsertRowId; //returns the ID given to the medication so we can make it into a schedule
 };
 
-export const insertSchedule = (scriptLength, startDate, medicineID): Number => {
+export const insertSchedule = (scriptLength, startDate, medicineID): number => {
   console.log(scriptLength, startDate, medicineID)
   const result = db.runSync(`
     INSERT INTO schedule (
@@ -95,7 +95,7 @@ export const insertSchedule = (scriptLength, startDate, medicineID): Number => {
   return result.lastInsertRowId;
 }
 
-export const insertScheduleItem = (time: string, date: Date, scheduleID: number): Number => {
+export const insertScheduleItem = (time: string, date: Date, scheduleID: number): number => {
   console.log(time)
 
   const result = db.runSync(`

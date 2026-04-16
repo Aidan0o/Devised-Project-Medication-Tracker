@@ -9,8 +9,8 @@ import * as ImagePicker from 'expo-image-picker'; //imports all
 //OCR lib 
 import { extractTextFromImage } from 'expo-text-extractor';
 //openAI lib
+import { timeMap } from '@/constants/timeMap';
 import { OpenAI } from 'openai';
-import { timeMap } from './constants';
 
 const scriptAI = new OpenAI({
   apiKey: 'No API key for you',
@@ -92,7 +92,7 @@ export default function ImagePickerComp({ onImageChange }) {
           console.log(parsedAiResponse.medication.name)
           const numPerDay = parsedAiResponse.medication.frequencyTimes
           const times = timeMap[numPerDay];
-          console.log(times); 
+          console.log(times);
           let pillsPerDose = (parsedAiResponse.medication.doseAmount) / (parsedAiResponse.medication.pillStrength)
           let pillPerDay = (parsedAiResponse.medication.frequencyTimes) * (pillsPerDose);
           console.log(pillPerDay);
@@ -168,12 +168,8 @@ export default function ImagePickerComp({ onImageChange }) {
 }
 
 
-export function prescriptionData() {
 
-  return {
-    parsedAiResponse
-  }
-}
+
 
 
 

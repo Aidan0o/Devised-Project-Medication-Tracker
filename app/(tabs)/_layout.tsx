@@ -12,7 +12,7 @@ import { Medication } from '@/components/medicationTypes';
 import { medBoxBle } from '@/components/bluetoothUtils/BLE-connect';
 import { createDB, debugDB, dropDB, insertMedicine, insertSchedule, insertScheduleItem, updateScheduleItem } from '@/components/databaseUtils/database';
 import { dateTimeBuilder } from '@/components/dateTimeBuilder';
-import { notificationPermissions, scheduleNotification } from '@/components/notificationUtils/notificationScheduler';
+import { notificationPermissions, scheduleNotification, showNotifications } from '@/components/notificationUtils/notificationScheduler';
 import { add } from 'date-fns';
 // import { createDB } from '@/components/databaseUtils/database';
 //temp obj:
@@ -21,8 +21,8 @@ const tempObj: Medication = {
   doseUnit: 'mg',
   frequencyPer: 'day',
   frequencyTimes: 3,
-  name: 'test',
-  pillStrength: 3,
+  name: 'paracetamol',
+  pillStrength: 300,
   pillStrengthUnit: 'mg',
   pillCountPerDose: 2,
   totalSupply: 6,
@@ -56,6 +56,8 @@ export default function TabLayout() {
       let scheduleID = insertSchedule(tempObj.scriptLength, tempObj.startDate, medicineID);
       // date = dateIterator(tempObj.startDate, date);
       notificationPermissions().then(() => console.log('permission granted'),)
+      showNotifications();
+      // testNotification().then((res) => console.log("test", res));
       for (let i = 0; i < tempObj.scriptLength; i++) {
         tempObj.times.forEach((time) => {
           const notiDateTime = dateTimeBuilder(date, time);
@@ -70,7 +72,10 @@ export default function TabLayout() {
         date = add(date, { days: 1 });
 
       }
-      scheduleNotification(tempObj, new Date(2026, 4, 14, 13, 55, 0)).then(console.log)
+
+      // scheduleNotification(tempObj, new Date(2026, 3, 16, 22, 26, 0)).then(console.log);
+      scheduleNotification(tempObj, new Date('2026-04-16T19:35:45.000Z')).then(console.log);
+
 
       debugDB();
       manager.connect().then(() => {

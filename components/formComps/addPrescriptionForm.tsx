@@ -2,22 +2,13 @@
 import { Formik } from "formik";
 import { Button, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { Medication } from "../medicationTypes";
+import { setForm }
+import { useEffect } from "react";
 
 
 //all set to string for now will be converted to correct types after submit before reaches back end
-type AddPrescriptionForm = {
-    name: string;
-    strengthPerPill: string;
-    strengthUnit: string;
-    doseAmount: string;
-    doseUnit: string;
-    frequencyTimes: string;
-    frequencyPer: string;
-    totalSupply: string;
-    scriptLength: string;
-    scriptStartDate: string;
 
-}
 
 //function containing validation of fields 
 const validate = (values: AddPrescriptionForm) => {
@@ -38,14 +29,14 @@ const validate = (values: AddPrescriptionForm) => {
 }
 
 
-export const AddPrescriptionForm = props => {
-
+export const AddPrescriptionForm = ({ values = {} }) => {
 
     return (
-        <Formik<AddPrescriptionForm >
+        <Formik<Medication >
+            enableReinitialize
             initialValues={initialValues}
             validate={validate} //validate runs automatically when user submits form (formik feature)
-            onSubmit={(values: AddPrescriptionForm) => console.log(values)}
+            onSubmit={(values: Medication) => console.log(values)}
         >
 
             {({ handleChange, handleSubmit, setFieldValue, values, errors, touched }) => (
@@ -144,21 +135,14 @@ export const AddPrescriptionForm = props => {
 
 
 
-const initialValues: AddPrescriptionForm = {
-    name: '',
-    strengthPerPill: '',
-    strengthUnit: '',
-    doseAmount: '',
-    doseUnit: '',
-    frequencyTimes: '',
-    frequencyPer: '',
-    totalSupply: '',
-    scriptLength: '',
-    scriptStartDate: '',
 
 
-    // repeatScript: false
-}
+
+
+
+
+
+
 
 const styles = StyleSheet.create({
     form: {

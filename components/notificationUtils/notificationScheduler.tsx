@@ -13,15 +13,20 @@ export async function notificationPermissions() {
     if (finalStatus !== 'granted') {
         throw new Error('Notification permission not granted');
     }
+
+    await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+    });
 }
 
 
 export function scheduleNotification(medication: Medication, dateTime: Date) {
-
+    console.log('datetime', dateTime);
     return Notifications.scheduleNotificationAsync({
         content: {
             title: 'Medication Time!',
-            body: `Take ${medication.pillCountPerDose} ${medication.doseAmount, medication.doseUnit} pills of ${medication.name}`,
+            body: `Take ${medication.pillCountPerDose} ${medication.pillStrength}${medication.pillStrengthUnit} pills of ${medication.name}`,
             data: {
                 ...medication,
                 type: "medicationNotification"
@@ -32,7 +37,32 @@ export function scheduleNotification(medication: Medication, dateTime: Date) {
             date: dateTime
         }
     });
+}
 
 
+//debugging functions
+export function testNotification() {
+
+    return Notifications.scheduleNotificationAsync({
+        content: {
+            title: 'test notification',
+            body: 'this is a test'
+        },
+        trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+            seconds: 10
+        }
+
+    })
 
 }
+
+export const showNotifications = async () => {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    const all = await Notifications.getAllScheduledNotificationsAsync();
+    console.log('pending count:', all.length);
+    console.log(all);
+
+}
+
+

@@ -128,6 +128,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="cameraScanning"
+        options={{
+          title: 'Scan prescription',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="connectPage"
         options={{
           title: 'connect',

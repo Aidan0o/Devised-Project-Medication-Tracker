@@ -1,28 +1,30 @@
 // import {useForm, Controller} from "react-hook-form"
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Formik } from "formik";
-import { Button, ScrollView, StyleSheet, Text, TextInput } from "react-native";
+import { useState } from "react";
+import { Button, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Medication } from "../medicationTypes";
-import { setForm }
-import { useEffect } from "react";
+
 
 
 //all set to string for now will be converted to correct types after submit before reaches back end
 
 
 //function containing validation of fields 
-const validate = (values: AddPrescriptionForm) => {
-    const errors: Partial<Record<keyof AddPrescriptionForm, string>> = {};
+const validate = (values: Medication) => {
+    const errors: Partial<Record<keyof Medication, string>> = {};
     if (!values.name) errors.name = 'Drug name Required';
-    if (!values.strengthPerPill) errors.strengthPerPill = 'Pill strength Required';
-    if (!values.strengthUnit) errors.strengthUnit = 'Pill strength Unit Required';
+    if (!values.pillStrength) errors.pillStrength = 'Pill strength Required';
+    if (!values.pillStrengthUnit) errors.pillStrengthUnit = 'Pill strength Unit Required';
     if (!values.doseAmount) errors.doseAmount = 'Dose Required';
     if (!values.doseUnit) errors.doseUnit = 'Dose Unit Required';
     if (!values.frequencyTimes) errors.frequencyTimes = 'frequency required';
     if (!values.frequencyPer) errors.frequencyPer = 'frequency per ___ (day) required';
     if (!values.totalSupply) errors.totalSupply = 'total supply required';
     if (!values.scriptLength) errors.scriptLength = 'Length of Prescription required';
-    if (!values.scriptStartDate) errors.scriptStartDate = 'Prescription start date required';
+    if (!values.startDate) errors.startDate = 'Prescription start date required';
+    if (!values.pillCountPerDose) errors.pillCountPerDose = 'Pill count per dose required';
     console.log("hello")
     console.log(errors)
     return errors; //formik stores errors for me automatically in formik.errors
@@ -30,11 +32,11 @@ const validate = (values: AddPrescriptionForm) => {
 
 
 export const AddPrescriptionForm = ({ values = {} }) => {
-
+    const [showDate, setShowDate] = useState(false);
     return (
         <Formik<Medication >
             enableReinitialize
-            initialValues={initialValues}
+            initialValues={values}
             validate={validate} //validate runs automatically when user submits form (formik feature)
             onSubmit={(values: Medication) => console.log(values)}
         >
@@ -59,29 +61,29 @@ export const AddPrescriptionForm = ({ values = {} }) => {
                             <TextInput
                                 style={[
                                     styles.formFields,
-                                    touched.strengthPerPill && errors.strengthPerPill && { borderColor: 'red' },
+                                    touched.pillStrength && errors.pillStrength && { borderColor: 'red' },
                                 ]}
-                                onChangeText={handleChange('strengthPerPill')}
-                                value={values.strengthPerPill}
+                                onChangeText={handleChange('pillStrength')}
+                                value={`${values.pillStrength}`} //converts int to string
                                 keyboardType='numeric'
                                 placeholder='Dose of 1 pill'
                             />
-                            {touched.strengthPerPill && errors.strengthPerPill ? (
-                                <Text >{errors.strengthPerPill}</Text>
+                            {touched.pillStrength && errors.pillStrength ? (
+                                <Text >{errors.pillStrength}</Text>
                             ) : null}
                             <TextInput
                                 style={styles.formFields}
-                                onChangeText={handleChange('strengthUnit')}
-                                value={values.strengthUnit}
+                                onChangeText={handleChange('pillStrengthUnit')}
+                                value={values.pillStrengthUnit}
                                 placeholder='Dose of 1 pill units (mg,ug)'
                             />
-                            {touched.strengthUnit && errors.strengthUnit ? (
-                                <Text>{errors.strengthUnit}</Text>
+                            {touched.pillStrengthUnit && errors.pillStrengthUnit ? (
+                                <Text>{errors.pillStrengthUnit}</Text>
                             ) : null}
                             <TextInput
                                 style={styles.formFields}
                                 onChangeText={handleChange('doseAmount')}
-                                value={values.doseAmount}
+                                value={`${values.doseAmount}`}
                                 keyboardType='numeric'
                                 placeholder='Dose of 1 intake'
                             />
@@ -94,7 +96,7 @@ export const AddPrescriptionForm = ({ values = {} }) => {
                             <TextInput
                                 style={styles.formFields}
                                 onChangeText={handleChange('frequencyTimes')}
-                                value={values.frequencyTimes}
+                                value={`{$values.frequencyTimes}`}
                                 placeholder='frequency of intake (number)'
                             />
                             <TextInput
@@ -106,21 +108,39 @@ export const AddPrescriptionForm = ({ values = {} }) => {
                             <TextInput
                                 style={styles.formFields}
                                 onChangeText={handleChange('totalSupply')}
-                                value={values.totalSupply}
+                                value={`${values.totalSupply}`}
                                 placeholder='Number of pills supplied'
                             />
                             <TextInput
                                 style={styles.formFields}
                                 onChangeText={handleChange('scriptLength')}
-                                value={values.scriptLength}
+                                value={`${values.scriptLength}`}
                                 placeholder='Number of days the prescription lasts for'
                             />
                             <TextInput
                                 style={styles.formFields}
-                                onChangeText={handleChange('scriptStartDate')}
-                                value={values.scriptStartDate}
-                                placeholder='Start date'
+                                onChangeText={handleChange('pillCountPerDose')}
+                                value={`${values.pillCountPerDose}`}
+                                placeholder='pill count per dose'
                             />
+                            <Pressable
+                                onPress={() => setShowDate(true)}
+                                style={styles.formFields}
+                            >
+                                <Text style={{ fontSize: 30 }}>{values?.startDate?.toDateString ? values.startDate.toDateString() : "Press Me"}</Text>
+                            </Pressable>
+                            {showDate && (
+                                <DateTimePicker
+                                    value={new Date(values.startDate)} //sets value to a date or if not possible, null
+                                    onChange={(event, val) => {
+                                        setShowDate(false)
+                                        setFieldValue('startDate', val)
+                                    }}
+                                    minimumDate={new Date()}
+                                    placeholderText='Select Start Date'
+
+                                />
+                            )}
                             <Button onPress={handleSubmit}
                                 title="Submit"
                             />

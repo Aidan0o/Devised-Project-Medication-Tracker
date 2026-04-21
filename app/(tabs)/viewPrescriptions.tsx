@@ -1,4 +1,4 @@
-import { AddPrescriptionForm } from '@/components/formComps/addPrescriptionForm';
+import { showMedicationTable } from '@/components/ui/viewScriptTable';
 
 // export default function AddPrescription(){
 
@@ -7,10 +7,10 @@ import { AddPrescriptionForm } from '@/components/formComps/addPrescriptionForm'
 
 import { StyleSheet } from 'react-native';
 
-export default function boop(){
-    return(
-        <AddPrescriptionForm style ={styles.container}/>
-    );
+export default function viewMedication() {
+    return (
+        showMedicationTable()
+    )
 }
 
 

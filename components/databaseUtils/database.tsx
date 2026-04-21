@@ -136,6 +136,28 @@ export const updateScheduleItem = (scheduleItemID, notificationID) => {
 }
 
 
-export const readChosenMedication = (medicationName) => {
+export const readMedicationsSchedule = (showUpcomingOnly: boolean = true) => {
+  const dateFilter = showUpcomingOnly ? "WHERE si.date > datetime('now')" : "";
+  const rows = db.getAllSync(`
+    SELECT m.name, si.date, si.notificationID 
+    FROM medicine m 
+    JOIN schedule s on s.medicineID = m.id
+    JOIN scheduleItems si on si.scheduleID = s.id  
+    ${dateFilter}
+    ORDER BY si.date ASC
+  `);
 
+  return rows;
+}
+
+export const readMedications = () => {
+
+  const rows = db.getAllSync(`
+    SELECT m.name 
+    FROM medicine m 
+    JOIN schedule s on s.medicineID = m.id
+    ORDER BY m.name ASC
+  `);
+
+  return rows;
 }

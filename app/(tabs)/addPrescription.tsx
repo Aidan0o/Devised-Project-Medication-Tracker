@@ -1,6 +1,7 @@
 import { AddPrescriptionForm } from '@/components/formComps/addPrescriptionForm';
 import { Medication } from '@/components/medicationTypes';
-
+import ImagePickerComp from '@/components/scanningComps/cameraComp';
+import { useState } from 'react';
 // export default function AddPrescription(){
 
 //     return <addPrescriptionForm />;
@@ -25,12 +26,20 @@ const initialValues: Medication = {
 }
 
 
-export default function boop() {
+export default function AddPrescription() {
+    //setInitialValues(); 
+    const [formValues, setFormValues] = useState(initialValues);
     return (
-        <AddPrescriptionForm
-            style={styles.container}
-            values={initialValues}
-        />
+        <>
+            <ImagePickerComp
+                onImageChange={(values) => {
+                    console.log('oogaBooga', values)
+                    setFormValues(values.medication)
+                }} />
+            <AddPrescriptionForm
+                values={formValues}
+            />
+        </>
     );
 }
 

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Medication } from "../medicationTypes";
+import { createSchedule } from "../scheduleCreator";
 
 
 
@@ -38,7 +39,7 @@ export const AddPrescriptionForm = ({ values = {} }) => {
             enableReinitialize
             initialValues={values}
             validate={validate} //validate runs automatically when user submits form (formik feature)
-            onSubmit={(values: Medication) => console.log(values)}
+            onSubmit={(values: Medication) => createSchedule(values)}
         >
 
             {({ handleChange, handleSubmit, setFieldValue, values, errors, touched }) => (
@@ -96,7 +97,7 @@ export const AddPrescriptionForm = ({ values = {} }) => {
                             <TextInput
                                 style={styles.formFields}
                                 onChangeText={handleChange('frequencyTimes')}
-                                value={`{$values.frequencyTimes}`}
+                                value={`${values.frequencyTimes}`}
                                 placeholder='frequency of intake (number)'
                             />
                             <TextInput
